@@ -6,10 +6,10 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  SafeAreaView,
   Alert,
   Modal,
 } from 'react-native';
+import { AppSafeAreaView } from '../../src/components/AppSafeAreaView';
 import { useRouter } from 'expo-router';
 import { ArrowLeft, Plus, Archive, ArchiveRestore, X } from 'lucide-react-native';
 import { useTheme } from '../../src/theme';
@@ -75,74 +75,84 @@ export default function CategoriesScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
-      {/* Apple Navigation Bar */}
-      <View
-        style={[
-          styles.header,
-          {
-            paddingHorizontal: spacing.lg,
-            borderBottomColor: colors.separator,
-            borderBottomWidth: 0.5,
-          },
-        ]}
-      >
-        <TouchableOpacity
-          onPress={() => router.back()}
-          activeOpacity={0.7}
-          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-          style={styles.navButton}
-        >
-          <ArrowLeft size={20} color={colors.primary} />
-        </TouchableOpacity>
-
-        <Text style={[typography.headline, { color: colors.textPrimary }]}>
-          Categories
-        </Text>
-
-        <TouchableOpacity
-          onPress={() => setModalVisible(true)}
-          activeOpacity={0.7}
-          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-          style={styles.navButton}
-        >
-          <Plus size={22} color={colors.primary} />
-        </TouchableOpacity>
-      </View>
-
-      {/* Archive Filter Toggle */}
-      <View
-        style={[
-          styles.toggleRow,
-          { paddingHorizontal: spacing.lg, paddingVertical: spacing.sm },
-        ]}
-      >
-        <TouchableOpacity
-          onPress={() => setIncludeArchived(!includeArchived)}
-          activeOpacity={0.7}
+    <AppSafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <View style={styles.centerContainer}>
+        {/* Apple Navigation Bar */}
+        <View
           style={[
-            styles.archiveFilterChip,
+            styles.header,
             {
-              backgroundColor: includeArchived ? colors.primaryLight : colors.surfaceInset,
-              borderRadius: br.full,
-              paddingHorizontal: spacing.md,
-              paddingVertical: 6,
+              paddingHorizontal: spacing.lg,
+              borderBottomColor: colors.separator,
+              borderBottomWidth: 0.5,
             },
           ]}
         >
-          <Text
+          <TouchableOpacity
+            onPress={() => router.back()}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            style={styles.navButton}
+          >
+            <ArrowLeft size={20} color={colors.primary} />
+          </TouchableOpacity>
+
+          <Text style={[typography.headline, { color: colors.textPrimary }]}>
+            Categories
+          </Text>
+
+          <TouchableOpacity
+            onPress={() => setModalVisible(true)}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Add custom category"
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            style={styles.navButton}
+          >
+            <Plus size={22} color={colors.primary} />
+          </TouchableOpacity>
+        </View>
+
+        {/* Archive Filter Toggle */}
+        <View
+          style={[
+            styles.toggleRow,
+            { paddingHorizontal: spacing.lg, paddingVertical: spacing.sm },
+          ]}
+        >
+          <TouchableOpacity
+            onPress={() => setIncludeArchived(!includeArchived)}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Toggle showing archived categories"
+            hitSlop={{ top: 8, bottom: 8, left: 6, right: 6 }}
             style={[
-              typography.caption1,
+              styles.archiveFilterChip,
               {
-                color: includeArchived ? colors.primary : colors.textSecondary,
-                fontWeight: includeArchived ? '600' : '400',
+                backgroundColor: includeArchived ? colors.primaryLight : colors.surfaceInset,
+                borderRadius: br.full,
+                paddingHorizontal: spacing.md,
+                paddingVertical: 6,
+                borderWidth: 0.5,
+                borderColor: includeArchived ? 'transparent' : colors.specularHairline,
               },
             ]}
           >
-            {includeArchived ? 'Showing Archived' : 'Show Archived'}
-          </Text>
-        </TouchableOpacity>
-      </View>
+            <Text
+              style={[
+                typography.caption1,
+                {
+                  color: includeArchived ? colors.primary : colors.textSecondary,
+                  fontWeight: includeArchived ? '600' : '400',
+                },
+              ]}
+            >
+              {includeArchived ? 'Showing Archived' : 'Show Archived'}
+            </Text>
+          </TouchableOpacity>
+        </View>
 
       {/* Grouped Categories List */}
       <ScrollView
@@ -204,6 +214,8 @@ export default function CategoriesScreen() {
 
                     <TouchableOpacity
                       onPress={() => handleArchiveToggle(cat.id, cat.isArchived)}
+                      accessibilityRole="button"
+                      accessibilityLabel={cat.isArchived ? `Restore ${cat.name}` : `Archive ${cat.name}`}
                       hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
                       style={{ padding: 4 }}
                     >
@@ -232,6 +244,7 @@ export default function CategoriesScreen() {
           </View>
         ))}
       </ScrollView>
+      </View>
 
       {/* Add Category Modal */}
       <Modal visible={modalVisible} animationType="slide" transparent>
@@ -243,6 +256,8 @@ export default function CategoriesScreen() {
                 backgroundColor: colors.surfaceElevated,
                 borderRadius: br['2xl'],
                 padding: spacing.xl,
+                borderWidth: 0.5,
+                borderColor: colors.specularHairline,
               },
             ]}
           >
@@ -250,7 +265,12 @@ export default function CategoriesScreen() {
               <Text style={[typography.headline, { color: colors.textPrimary }]}>
                 New Category
               </Text>
-              <TouchableOpacity onPress={() => setModalVisible(false)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+              <TouchableOpacity
+                onPress={() => setModalVisible(false)}
+                accessibilityRole="button"
+                accessibilityLabel="Close new category dialog"
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
                 <X size={20} color={colors.textTertiary} />
               </TouchableOpacity>
             </View>
@@ -290,13 +310,19 @@ export default function CategoriesScreen() {
           </View>
         </View>
       </Modal>
-    </SafeAreaView>
+    </AppSafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+  },
+  centerContainer: {
+    flex: 1,
+    width: '100%',
+    maxWidth: 680,
+    alignSelf: 'center',
   },
   header: {
     flexDirection: 'row',

@@ -6,11 +6,11 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  SafeAreaView,
   KeyboardAvoidingView,
   Platform,
   Alert,
 } from 'react-native';
+import { AppSafeAreaView } from '../../src/components/AppSafeAreaView';
 import { useRouter } from 'expo-router';
 import { Calendar, Store, FileText } from 'lucide-react-native';
 import { useTheme } from '../../src/theme';
@@ -85,60 +85,65 @@ export default function NewExpenseScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={{ flex: 1 }}
-      >
-        {/* Apple Modal Navigation Bar */}
-        <View
-          style={[
-            styles.header,
-            {
-              paddingHorizontal: spacing.lg,
-              borderBottomColor: colors.separator,
-              borderBottomWidth: 0.5,
-            },
-          ]}
+    <AppSafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <View style={styles.centerContainer}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={{ flex: 1 }}
         >
-          <TouchableOpacity
-            onPress={() => router.back()}
-            activeOpacity={0.7}
-            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          {/* Apple Modal Navigation Bar */}
+          <View
+            style={[
+              styles.header,
+              {
+                paddingHorizontal: spacing.lg,
+                borderBottomColor: colors.separator,
+                borderBottomWidth: 0.5,
+              },
+            ]}
           >
-            <Text style={[typography.body, { color: colors.primary }]}>
-              Cancel
-            </Text>
-          </TouchableOpacity>
-
-          <Text style={[typography.headline, { color: colors.textPrimary }]}>
-            New Expense
-          </Text>
-
-          <TouchableOpacity
-            onPress={handleSave}
-            disabled={submitting}
-            activeOpacity={0.7}
-            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-          >
-            <Text
-              style={[
-                typography.headline,
-                {
-                  color: submitting ? colors.textTertiary : colors.primary,
-                  fontWeight: '600',
-                },
-              ]}
+            <TouchableOpacity
+              onPress={() => router.back()}
+              activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel="Cancel adding expense"
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
             >
-              Done
-            </Text>
-          </TouchableOpacity>
-        </View>
+              <Text style={[typography.body, { color: colors.primary }]}>
+                Cancel
+              </Text>
+            </TouchableOpacity>
 
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={[styles.content, { padding: spacing.lg, gap: spacing.lg }]}
-        >
+            <Text style={[typography.headline, { color: colors.textPrimary }]}>
+              New Expense
+            </Text>
+
+            <TouchableOpacity
+              onPress={handleSave}
+              disabled={submitting}
+              activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel="Done and save expense"
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            >
+              <Text
+                style={[
+                  typography.headline,
+                  {
+                    color: submitting ? colors.textTertiary : colors.primary,
+                    fontWeight: '600',
+                  },
+                ]}
+              >
+                Done
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={[styles.content, { padding: spacing.lg, gap: spacing.lg }]}
+          >
           {/* Amount Input */}
           <AmountInput
             value={amountRupees}
@@ -206,6 +211,8 @@ export default function NewExpenseScreen() {
                       setExpenseDate(item.date);
                     }}
                     activeOpacity={0.7}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Date ${item.label}`}
                     style={[
                       styles.datePill,
                       {
@@ -216,9 +223,7 @@ export default function NewExpenseScreen() {
                         borderWidth: 0.5,
                         borderColor: isSelected
                           ? colors.primary
-                          : isDark
-                          ? 'rgba(255, 255, 255, 0.08)'
-                          : 'rgba(0, 0, 0, 0.04)',
+                          : colors.specularHairline,
                       },
                     ]}
                   >
@@ -264,6 +269,9 @@ export default function NewExpenseScreen() {
                       setPaymentMethod(pm.value);
                     }}
                     activeOpacity={0.7}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Payment method ${pm.label}`}
+                    hitSlop={{ top: 8, bottom: 8, left: 6, right: 6 }}
                     style={[
                       styles.methodPill,
                       {
@@ -271,6 +279,8 @@ export default function NewExpenseScreen() {
                         borderRadius: br.full,
                         paddingHorizontal: spacing.md,
                         paddingVertical: 7,
+                        borderWidth: 0.5,
+                        borderColor: isSelected ? 'transparent' : colors.specularHairline,
                       },
                     ]}
                   >
@@ -323,15 +333,22 @@ export default function NewExpenseScreen() {
             fullWidth
             style={{ marginTop: spacing.sm }}
           />
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </View>
+    </AppSafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+  },
+  centerContainer: {
+    flex: 1,
+    width: '100%',
+    maxWidth: 680,
+    alignSelf: 'center',
   },
   header: {
     flexDirection: 'row',

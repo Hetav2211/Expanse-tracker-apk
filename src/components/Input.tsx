@@ -68,7 +68,7 @@ export function Input({
               ? colors.danger
               : isFocused
               ? colors.primary
-              : 'transparent',
+              : colors.specularHairline,
           },
         ]}
       >
@@ -97,6 +97,8 @@ export function Input({
         {showClear && value && value.length > 0 && onClear ? (
           <TouchableOpacity
             onPress={onClear}
+            accessibilityRole="button"
+            accessibilityLabel="Clear text"
             hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
             style={[
               styles.clearBtn,

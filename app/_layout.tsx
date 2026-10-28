@@ -4,6 +4,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider, useTheme } from '../src/theme';
 import { getDatabase } from '../src/db/database';
 import { ErrorBoundary as SafeErrorBoundary } from '../src/components/ErrorBoundary';
@@ -50,11 +51,13 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider>
-      <SafeErrorBoundary fallbackTitle="Application Error" fallbackMessage="The application encountered an unexpected state. Tap below to reload.">
-        <NavigationStack />
-      </SafeErrorBoundary>
-    </ThemeProvider>
+    <SafeAreaProvider>
+      <ThemeProvider>
+        <SafeErrorBoundary fallbackTitle="Application Error" fallbackMessage="The application encountered an unexpected state. Tap below to reload.">
+          <NavigationStack />
+        </SafeErrorBoundary>
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 }
 

@@ -6,12 +6,12 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  SafeAreaView,
   KeyboardAvoidingView,
   Platform,
   Alert,
   ActivityIndicator,
 } from 'react-native';
+import { AppSafeAreaView } from '../../src/components/AppSafeAreaView';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Trash2, Calendar, Store, FileText } from 'lucide-react-native';
 import { useTheme } from '../../src/theme';
@@ -134,51 +134,56 @@ export default function EditExpenseScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' }]}>
+      <AppSafeAreaView style={[styles.safeArea, { backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' }]}>
         <ActivityIndicator size="large" color={colors.primary} />
-      </SafeAreaView>
+      </AppSafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={{ flex: 1 }}
-      >
-        {/* Apple Modal Navigation Bar */}
-        <View
-          style={[
-            styles.header,
-            {
-              paddingHorizontal: spacing.lg,
-              borderBottomColor: colors.separator,
-              borderBottomWidth: 0.5,
-            },
-          ]}
+    <AppSafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <View style={styles.centerContainer}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={{ flex: 1 }}
         >
-          <TouchableOpacity
-            onPress={() => router.back()}
-            activeOpacity={0.7}
-            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          {/* Apple Modal Navigation Bar */}
+          <View
+            style={[
+              styles.header,
+              {
+                paddingHorizontal: spacing.lg,
+                borderBottomColor: colors.separator,
+                borderBottomWidth: 0.5,
+              },
+            ]}
           >
-            <Text style={[typography.body, { color: colors.primary }]}>
-              Cancel
+            <TouchableOpacity
+              onPress={() => router.back()}
+              activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel="Cancel edit"
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            >
+              <Text style={[typography.body, { color: colors.primary }]}>
+                Cancel
+              </Text>
+            </TouchableOpacity>
+
+            <Text style={[typography.headline, { color: colors.textPrimary }]}>
+              Edit Expense
             </Text>
-          </TouchableOpacity>
 
-          <Text style={[typography.headline, { color: colors.textPrimary }]}>
-            Edit Expense
-          </Text>
-
-          <TouchableOpacity
-            onPress={handleDelete}
-            activeOpacity={0.7}
-            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-          >
-            <Trash2 size={18} color={colors.danger} />
-          </TouchableOpacity>
-        </View>
+            <TouchableOpacity
+              onPress={handleDelete}
+              activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel="Delete expense"
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            >
+              <Trash2 size={18} color={colors.danger} />
+            </TouchableOpacity>
+          </View>
 
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -243,6 +248,9 @@ export default function EditExpenseScreen() {
                       setPaymentMethod(pm.value);
                     }}
                     activeOpacity={0.7}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Payment method ${pm.label}`}
+                    hitSlop={{ top: 8, bottom: 8, left: 6, right: 6 }}
                     style={[
                       styles.methodPill,
                       {
@@ -250,6 +258,8 @@ export default function EditExpenseScreen() {
                         borderRadius: br.full,
                         paddingHorizontal: spacing.md,
                         paddingVertical: 7,
+                        borderWidth: 0.5,
+                        borderColor: isSelected ? 'transparent' : colors.specularHairline,
                       },
                     ]}
                   >
@@ -312,14 +322,21 @@ export default function EditExpenseScreen() {
             />
           </View>
         </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+        </KeyboardAvoidingView>
+      </View>
+    </AppSafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+  },
+  centerContainer: {
+    flex: 1,
+    width: '100%',
+    maxWidth: 680,
+    alignSelf: 'center',
   },
   header: {
     flexDirection: 'row',

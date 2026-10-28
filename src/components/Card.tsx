@@ -28,7 +28,8 @@ export function Card({
       ? spacing.xl
       : spacing.lg;
 
-  const borderRadiusValue = br.lg; // 16px Apple continuous radius
+  // Apple HIG continuous squircle radius: 16px
+  const borderRadiusValue = br.lg;
 
   if (variant === 'inset') {
     return (
@@ -40,7 +41,7 @@ export function Card({
             borderRadius: borderRadiusValue,
             padding: paddingValue,
             borderWidth: 0.5,
-            borderColor: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)',
+            borderColor: colors.specularHairline,
           },
           style,
         ]}
@@ -81,14 +82,14 @@ export function Card({
           backgroundColor,
           borderRadius: borderRadiusValue,
           padding: paddingValue,
-          // Specular hairline rim light
+          // Specular hairline chamfered edge (0.5px, Section 1.A & 5.A)
           borderWidth: 0.5,
-          borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)',
+          borderColor: colors.specularHairline,
           // Dark Mode: NO drop shadow (elevation = luminance shift)
-          // Light Mode: Subtle diffused shadow
-          shadowColor: isDark ? 'transparent' : '#000000',
+          // Light Mode: Subtle ambient elevation shadow
+          shadowColor: isDark ? 'transparent' : colors.shadowColor,
           shadowOffset: { width: 0, height: isElevated ? 4 : 2 },
-          shadowOpacity: isDark ? 0 : isElevated ? 0.07 : 0.04,
+          shadowOpacity: isDark ? 0 : isElevated ? 0.08 : 0.05,
           shadowRadius: isElevated ? 14 : 10,
           elevation: isDark ? 0 : isElevated ? 2 : 1,
         },
@@ -106,3 +107,4 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
 });
+

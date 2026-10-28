@@ -6,10 +6,10 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  SafeAreaView,
   Alert,
   Modal,
 } from 'react-native';
+import { AppSafeAreaView } from '../../src/components/AppSafeAreaView';
 import { useRouter } from 'expo-router';
 import { ArrowLeft, Plus, Target, Trash2, X } from 'lucide-react-native';
 import { useTheme } from '../../src/theme';
@@ -86,50 +86,55 @@ export default function BudgetsScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
-      {/* Apple Navigation Bar */}
-      <View
-        style={[
-          styles.header,
-          {
-            paddingHorizontal: spacing.lg,
-            borderBottomColor: colors.separator,
-            borderBottomWidth: 0.5,
-          },
-        ]}
-      >
-        <TouchableOpacity
-          onPress={() => router.back()}
-          activeOpacity={0.7}
-          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-          style={styles.navButton}
+    <AppSafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <View style={styles.centerContainer}>
+        {/* Apple Navigation Bar */}
+        <View
+          style={[
+            styles.header,
+            {
+              paddingHorizontal: spacing.lg,
+              borderBottomColor: colors.separator,
+              borderBottomWidth: 0.5,
+            },
+          ]}
         >
-          <ArrowLeft size={20} color={colors.primary} />
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            style={styles.navButton}
+          >
+            <ArrowLeft size={20} color={colors.primary} />
+          </TouchableOpacity>
 
-        <Text style={[typography.headline, { color: colors.textPrimary }]}>
-          Budgets
-        </Text>
+          <Text style={[typography.headline, { color: colors.textPrimary }]}>
+            Budgets
+          </Text>
 
-        <TouchableOpacity
-          onPress={() => setCatModalVisible(true)}
-          activeOpacity={0.7}
-          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-          style={styles.navButton}
+          <TouchableOpacity
+            onPress={() => setCatModalVisible(true)}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Add category budget limit"
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            style={styles.navButton}
+          >
+            <Plus size={22} color={colors.primary} />
+          </TouchableOpacity>
+        </View>
+
+        {/* Month Switcher */}
+        <View style={{ paddingHorizontal: spacing.md }}>
+          <MonthSelector currentMonth={selectedMonth} onChangeMonth={setSelectedMonth} />
+        </View>
+
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={[styles.content, { padding: spacing.lg, gap: spacing.lg }]}
         >
-          <Plus size={22} color={colors.primary} />
-        </TouchableOpacity>
-      </View>
-
-      {/* Month Switcher */}
-      <View style={{ paddingHorizontal: spacing.md }}>
-        <MonthSelector currentMonth={selectedMonth} onChangeMonth={setSelectedMonth} />
-      </View>
-
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={[styles.content, { padding: spacing.lg, gap: spacing.lg }]}
-      >
         {/* Overall Monthly Budget */}
         <View>
           <Text
@@ -290,7 +295,12 @@ export default function BudgetsScreen() {
             >
               CATEGORY BUDGETS
             </Text>
-            <TouchableOpacity onPress={() => setCatModalVisible(true)}>
+            <TouchableOpacity
+              onPress={() => setCatModalVisible(true)}
+              accessibilityRole="button"
+              accessibilityLabel="Add category limit"
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
               <Text style={[typography.subhead, { color: colors.primary, fontWeight: '600' }]}>
                 + Add Limit
               </Text>
@@ -316,6 +326,8 @@ export default function BudgetsScreen() {
                           {
                             backgroundColor: colors.surfaceInset,
                             borderRadius: br.sm,
+                            borderWidth: 0.5,
+                            borderColor: colors.specularHairline,
                           },
                         ]}
                       >
@@ -335,6 +347,8 @@ export default function BudgetsScreen() {
                     <TouchableOpacity
                       onPress={() => removeBudget(st.budget.id)}
                       activeOpacity={0.7}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Delete budget for ${st.category?.name || 'Category'}`}
                       hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                       style={[
                         styles.trashBtn,
@@ -400,6 +414,7 @@ export default function BudgetsScreen() {
           )}
         </View>
       </ScrollView>
+      </View>
 
       {/* Add Category Budget Modal */}
       <Modal visible={catModalVisible} animationType="slide" transparent>
@@ -411,6 +426,8 @@ export default function BudgetsScreen() {
                 backgroundColor: colors.surfaceElevated,
                 borderRadius: br['2xl'],
                 padding: spacing.xl,
+                borderWidth: 0.5,
+                borderColor: colors.specularHairline,
               },
             ]}
           >
@@ -418,7 +435,12 @@ export default function BudgetsScreen() {
               <Text style={[typography.headline, { color: colors.textPrimary }]}>
                 Category Limit
               </Text>
-              <TouchableOpacity onPress={() => setCatModalVisible(false)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+              <TouchableOpacity
+                onPress={() => setCatModalVisible(false)}
+                accessibilityRole="button"
+                accessibilityLabel="Close category limit dialog"
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
                 <X size={20} color={colors.textTertiary} />
               </TouchableOpacity>
             </View>
@@ -455,13 +477,19 @@ export default function BudgetsScreen() {
           </View>
         </View>
       </Modal>
-    </SafeAreaView>
+    </AppSafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+  },
+  centerContainer: {
+    flex: 1,
+    width: '100%',
+    maxWidth: 680,
+    alignSelf: 'center',
   },
   header: {
     flexDirection: 'row',

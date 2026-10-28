@@ -6,14 +6,15 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  SafeAreaView,
   Alert,
   ActivityIndicator,
   Switch,
 } from 'react-native';
+import { AppSafeAreaView } from '../../src/components/AppSafeAreaView';
 import { useRouter } from 'expo-router';
 import { useTheme } from '../../src/theme';
 import { Card } from '../../src/components/Card';
+import { SegmentedControl } from '../../src/components/SegmentedControl';
 import { exportExpensesToCsv } from '../../src/utils/export';
 import { exportDatabaseBackup, importDatabaseBackup } from '../../src/utils/backup';
 import {
@@ -87,81 +88,38 @@ export default function SettingsScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
-      {/* Apple Large Title Header */}
-      <View style={[styles.header, { paddingHorizontal: spacing.lg, paddingTop: spacing.md }]}>
-        <Text style={[typography.caption2, { color: colors.textSecondary, letterSpacing: 0.8, textTransform: 'uppercase' }]}>
-          Preferences
-        </Text>
-        <Text style={[typography.title1, { color: colors.textPrimary }]}>
-          Settings
-        </Text>
-      </View>
+    <AppSafeAreaView edges={['top', 'left', 'right']} style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <View style={styles.centerContainer}>
+        {/* Apple Large Title Header */}
+        <View style={[styles.header, { paddingHorizontal: spacing.lg, paddingTop: spacing.md }]}>
+          <Text style={[typography.caption2, { color: colors.textSecondary, letterSpacing: 0.8, textTransform: 'uppercase' }]}>
+            Preferences
+          </Text>
+          <Text style={[typography.title1, { color: colors.textPrimary }]}>
+            Settings
+          </Text>
+        </View>
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={[styles.content, { padding: spacing.lg, gap: spacing.lg }]}
-      >
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={[styles.content, { padding: spacing.lg, gap: spacing.lg }]}
+        >
         {/* Appearance Section */}
         <View>
           <Text style={[styles.sectionTitle, typography.footnote, { color: colors.textSecondary }]}>
             APPEARANCE
           </Text>
           <Card variant="default" padding="sm">
-            <View
-              style={[
-                styles.themeSegmentControl,
-                {
-                  backgroundColor: colors.surfaceInset,
-                  borderRadius: br.md,
-                  padding: 3,
-                },
+            <SegmentedControl
+              options={[
+                { value: 'system', label: 'System', icon: Smartphone },
+                { value: 'light', label: 'Light', icon: Sun },
+                { value: 'dark', label: 'Dark', icon: Moon },
               ]}
-            >
-              {[
-                { mode: 'system', label: 'System', icon: Smartphone },
-                { mode: 'light', label: 'Light', icon: Sun },
-                { mode: 'dark', label: 'Dark', icon: Moon },
-              ].map(({ mode, label, icon: Icon }) => {
-                const isSelected = themeMode === mode;
-                return (
-                  <TouchableOpacity
-                    key={mode}
-                    onPress={() => {
-                      triggerSelection();
-                      setThemeMode(mode as any);
-                    }}
-                    activeOpacity={0.7}
-                    style={[
-                      styles.themeBtn,
-                      {
-                        backgroundColor: isSelected ? colors.surface : 'transparent',
-                        borderRadius: br.sm,
-                        shadowColor: isDark ? 'transparent' : '#000000',
-                        shadowOffset: { width: 0, height: 1 },
-                        shadowOpacity: isSelected && !isDark ? 0.08 : 0,
-                        shadowRadius: 2,
-                        elevation: isSelected && !isDark ? 1 : 0,
-                      },
-                    ]}
-                  >
-                    <Icon size={16} color={isSelected ? colors.primary : colors.textTertiary} />
-                    <Text
-                      style={[
-                        typography.caption2,
-                        {
-                          color: isSelected ? colors.textPrimary : colors.textTertiary,
-                          fontWeight: isSelected ? '600' : '400',
-                          marginTop: 3,
-                        },
-                      ]}
-                    >
-                      {label}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
+              selectedValue={themeMode}
+              onSelect={(mode) => setThemeMode(mode as any)}
+              size="md"
+            />
           </Card>
         </View>
 
@@ -210,6 +168,8 @@ export default function SettingsScreen() {
             <TouchableOpacity
               onPress={() => router.push('/categories')}
               activeOpacity={0.6}
+              accessibilityRole="button"
+              accessibilityLabel="Manage categories"
               style={[styles.navItem, { paddingHorizontal: spacing.md, paddingVertical: spacing.sm }]}
             >
               <View
@@ -236,6 +196,8 @@ export default function SettingsScreen() {
             <TouchableOpacity
               onPress={() => router.push('/budgets')}
               activeOpacity={0.6}
+              accessibilityRole="button"
+              accessibilityLabel="Manage monthly budgets"
               style={[styles.navItem, { paddingHorizontal: spacing.md, paddingVertical: spacing.sm }]}
             >
               <View
@@ -371,13 +333,20 @@ export default function SettingsScreen() {
           </View>
         </Card>
       </ScrollView>
-    </SafeAreaView>
+      </View>
+    </AppSafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+  },
+  centerContainer: {
+    flex: 1,
+    width: '100%',
+    maxWidth: 680,
+    alignSelf: 'center',
   },
   header: {
     marginBottom: 4,

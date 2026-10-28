@@ -7,11 +7,11 @@ import {
   ScrollView,
   RefreshControl,
   TouchableOpacity,
-  SafeAreaView,
 } from 'react-native';
+import { AppSafeAreaView } from '../../src/components/AppSafeAreaView';
 import { useRouter } from 'expo-router';
 import { Plus, ArrowUpRight, ArrowDownRight, AlertTriangle } from 'lucide-react-native';
-import { useTheme } from '../../src/theme';
+import { useTheme, concentricRadius } from '../../src/theme';
 import { useDashboard } from '../../src/hooks/useDashboard';
 import { getCurrentYearMonth, getRelativeDayLabel } from '../../src/utils/dates';
 import { formatINR } from '../../src/utils/currency';
@@ -46,56 +46,59 @@ export default function DashboardScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
-      {/* Apple Large Title Header */}
-      <View style={[styles.header, { paddingHorizontal: spacing.lg, paddingTop: spacing.md }]}>
-        <View>
-          <Text style={[typography.caption2, { color: colors.textSecondary, letterSpacing: 0.8, textTransform: 'uppercase' }]}>
-            Overview
-          </Text>
-          <Text style={[typography.title1, { color: colors.textPrimary }]}>
-            Expenses
-          </Text>
+    <AppSafeAreaView edges={['top', 'left', 'right']} style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <View style={styles.centerContainer}>
+        {/* Apple Large Title Header */}
+        <View style={[styles.header, { paddingHorizontal: spacing.lg, paddingTop: spacing.md }]}>
+          <View>
+            <Text style={[typography.caption2, { color: colors.textSecondary, letterSpacing: 0.8, textTransform: 'uppercase' }]}>
+              Overview
+            </Text>
+            <Text style={[typography.title1, { color: colors.textPrimary }]}>
+              Expenses
+            </Text>
+          </View>
+
+          {/* Apple Primary Action Button */}
+          <TouchableOpacity
+            onPress={handleAddExpense}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Add new expense"
+            style={[
+              styles.addButton,
+              {
+                backgroundColor: colors.primary,
+                borderRadius: br.full,
+                paddingHorizontal: spacing.md,
+                paddingVertical: 8,
+              },
+            ]}
+          >
+            <Plus size={16} color="#FFFFFF" strokeWidth={2.5} />
+            <Text style={[typography.subhead, { color: '#FFFFFF', fontWeight: '600' }]}>
+              Add
+            </Text>
+          </TouchableOpacity>
         </View>
 
-        {/* Apple Primary Action Button */}
-        <TouchableOpacity
-          onPress={handleAddExpense}
-          activeOpacity={0.7}
-          style={[
-            styles.addButton,
-            {
-              backgroundColor: colors.primary,
-              borderRadius: br.full,
-              paddingHorizontal: spacing.md,
-              paddingVertical: 8,
-            },
-          ]}
+        {/* Month Switcher */}
+        <View style={{ paddingHorizontal: spacing.md }}>
+          <MonthSelector currentMonth={selectedMonth} onChangeMonth={setSelectedMonth} />
+        </View>
+
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={[styles.scrollContent, { padding: spacing.lg, gap: spacing.md }]}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={refresh}
+              tintColor={colors.primary}
+              colors={[colors.primary]}
+            />
+          }
         >
-          <Plus size={16} color="#FFFFFF" strokeWidth={2.5} />
-          <Text style={[typography.subhead, { color: '#FFFFFF', fontWeight: '600' }]}>
-            Add
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Month Switcher */}
-      <View style={{ paddingHorizontal: spacing.md }}>
-        <MonthSelector currentMonth={selectedMonth} onChangeMonth={setSelectedMonth} />
-      </View>
-
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={[styles.scrollContent, { padding: spacing.lg, gap: spacing.md }]}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={refresh}
-            tintColor={colors.primary}
-            colors={[colors.primary]}
-          />
-        }
-      >
         {/* Main Spend Hero Card */}
         <Card variant="elevated">
           <Text style={[typography.subhead, { color: colors.textSecondary }]}>
@@ -143,7 +146,7 @@ export default function DashboardScreen() {
               </View>
             ) : null}
 
-            <Text style={[typography.footnote, { color: colors.textTertiary }]}>
+            <Text style={[typography.footnote, { color: colors.textTertiary, fontVariant: ['tabular-nums'] }]}>
               {summary?.transactionCount ?? 0} transactions
             </Text>
           </View>
@@ -154,7 +157,9 @@ export default function DashboardScreen() {
               styles.dailyBurnBox,
               {
                 backgroundColor: colors.surfaceInset,
-                borderRadius: br.md,
+                borderRadius: concentricRadius(br.lg, spacing.xs),
+                borderWidth: 0.5,
+                borderColor: colors.specularHairline,
                 padding: spacing.md,
                 marginTop: spacing.md,
               },
@@ -266,7 +271,12 @@ export default function DashboardScreen() {
                   ? `Over by ${formatINR(Math.abs(overallBudgetStatus.remainingPaise), false)}`
                   : `${formatINR(overallBudgetStatus.remainingPaise, false)} remaining`}
               </Text>
-              <TouchableOpacity onPress={() => router.push('/budgets')}>
+              <TouchableOpacity
+                onPress={() => router.push('/budgets')}
+                accessibilityRole="button"
+                accessibilityLabel="Manage monthly budgets"
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
                 <Text style={[typography.footnote, { color: colors.primary, fontWeight: '600' }]}>
                   Manage
                 </Text>
@@ -313,7 +323,12 @@ export default function DashboardScreen() {
               <Text style={[typography.headline, { color: colors.textPrimary }]}>
                 Top Categories
               </Text>
-              <TouchableOpacity onPress={() => router.push('/(tabs)/insights')}>
+              <TouchableOpacity
+                onPress={() => router.push('/(tabs)/insights')}
+                accessibilityRole="button"
+                accessibilityLabel="View category insights details"
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
                 <Text style={[typography.subhead, { color: colors.primary, fontWeight: '600' }]}>
                   Details
                 </Text>
@@ -380,7 +395,12 @@ export default function DashboardScreen() {
               Recent Expenses
             </Text>
             {recentExpenses.length > 0 && (
-              <TouchableOpacity onPress={() => router.push('/(tabs)/transactions')}>
+              <TouchableOpacity
+                onPress={() => router.push('/(tabs)/transactions')}
+                accessibilityRole="button"
+                accessibilityLabel="View all transactions"
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
                 <Text style={[typography.subhead, { color: colors.primary, fontWeight: '600' }]}>
                   View All
                 </Text>
@@ -402,6 +422,8 @@ export default function DashboardScreen() {
                   <TouchableOpacity
                     onPress={() => router.push(`/expense/${exp.id}`)}
                     activeOpacity={0.6}
+                    accessibilityRole="button"
+                    accessibilityLabel={`${exp.category.name}, ${formatINR(exp.amountPaise)} on ${getRelativeDayLabel(exp.expenseDate)}`}
                     style={[styles.recentRow, { paddingVertical: spacing.sm }]}
                   >
                     <View
@@ -410,6 +432,8 @@ export default function DashboardScreen() {
                         {
                           backgroundColor: colors.surfaceInset,
                           borderRadius: br.sm,
+                          borderWidth: 0.5,
+                          borderColor: colors.specularHairline,
                         },
                       ]}
                     >
@@ -458,13 +482,20 @@ export default function DashboardScreen() {
           )}
         </Card>
       </ScrollView>
-    </SafeAreaView>
+      </View>
+    </AppSafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+  },
+  centerContainer: {
+    flex: 1,
+    width: '100%',
+    maxWidth: 680,
+    alignSelf: 'center',
   },
   header: {
     flexDirection: 'row',
@@ -476,7 +507,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    minHeight: 36,
+    minHeight: 44,
   },
   scrollContent: {
     paddingBottom: 40,

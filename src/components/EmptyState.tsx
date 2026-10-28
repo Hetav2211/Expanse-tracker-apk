@@ -34,6 +34,8 @@ export function EmptyState({
           {
             backgroundColor: colors.surfaceInset,
             borderRadius: br.full,
+            borderWidth: 0.5,
+            borderColor: colors.specularHairline,
             marginBottom: spacing.md,
           },
         ]}

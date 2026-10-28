@@ -6,11 +6,11 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
-  SafeAreaView,
   RefreshControl,
   ScrollView,
   Platform,
 } from 'react-native';
+import { AppSafeAreaView } from '../../src/components/AppSafeAreaView';
 import { useRouter } from 'expo-router';
 import { Search, Plus, ArrowUpDown, X } from 'lucide-react-native';
 import { useTheme } from '../../src/theme';
@@ -102,38 +102,41 @@ export default function TransactionsScreen() {
   const hasActiveFilters = Boolean(searchQuery || selectedCategory || selectedPaymentMethod);
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
-      {/* Apple Large Title Header */}
-      <View style={[styles.header, { paddingHorizontal: spacing.lg, paddingTop: spacing.md }]}>
-        <View>
-          <Text style={[typography.caption2, { color: colors.textSecondary, letterSpacing: 0.8, textTransform: 'uppercase' }]}>
-            History
-          </Text>
-          <Text style={[typography.title1, { color: colors.textPrimary }]}>
-            Transactions
-          </Text>
-        </View>
+    <AppSafeAreaView edges={['top', 'left', 'right']} style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <View style={styles.centerContainer}>
+        {/* Apple Large Title Header */}
+        <View style={[styles.header, { paddingHorizontal: spacing.lg, paddingTop: spacing.md }]}>
+          <View>
+            <Text style={[typography.caption2, { color: colors.textSecondary, letterSpacing: 0.8, textTransform: 'uppercase' }]}>
+              History
+            </Text>
+            <Text style={[typography.title1, { color: colors.textPrimary }]}>
+              Transactions
+            </Text>
+          </View>
 
-        {/* Apple Primary Action Button */}
-        <TouchableOpacity
-          onPress={() => router.push('/expense/new')}
-          activeOpacity={0.7}
-          style={[
-            styles.addButton,
-            {
-              backgroundColor: colors.primary,
-              borderRadius: br.full,
-              paddingHorizontal: spacing.md,
-              paddingVertical: 8,
-            },
-          ]}
-        >
-          <Plus size={16} color="#FFFFFF" strokeWidth={2.5} />
-          <Text style={[typography.subhead, { color: '#FFFFFF', fontWeight: '600' }]}>
-            Add
-          </Text>
-        </TouchableOpacity>
-      </View>
+          {/* Apple Primary Action Button */}
+          <TouchableOpacity
+            onPress={() => router.push('/expense/new')}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Add new expense"
+            style={[
+              styles.addButton,
+              {
+                backgroundColor: colors.primary,
+                borderRadius: br.full,
+                paddingHorizontal: spacing.md,
+                paddingVertical: 8,
+              },
+            ]}
+          >
+            <Plus size={16} color="#FFFFFF" strokeWidth={2.5} />
+            <Text style={[typography.subhead, { color: '#FFFFFF', fontWeight: '600' }]}>
+              Add
+            </Text>
+          </TouchableOpacity>
+        </View>
 
       {/* Month Switcher */}
       <View style={{ paddingHorizontal: spacing.md }}>
@@ -157,6 +160,8 @@ export default function TransactionsScreen() {
         <TouchableOpacity
           onPress={toggleSort}
           activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel={`Sort by ${sortBy === 'date' ? 'Date' : sortOrder === 'desc' ? 'Highest amount' : 'Lowest amount'}`}
           style={[
             styles.sortBtn,
             {
@@ -164,7 +169,7 @@ export default function TransactionsScreen() {
               borderRadius: br.md,
               paddingHorizontal: spacing.md,
               borderWidth: 0.5,
-              borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)',
+              borderColor: colors.specularHairline,
             },
           ]}
         >
@@ -186,11 +191,16 @@ export default function TransactionsScreen() {
             <TouchableOpacity
               onPress={clearFilters}
               activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel="Clear active filters"
+              hitSlop={{ top: 8, bottom: 8, left: 6, right: 6 }}
               style={[
                 styles.filterChip,
                 {
                   backgroundColor: colors.dangerLight,
                   borderRadius: br.full,
+                  borderWidth: 0.5,
+                  borderColor: 'transparent',
                 },
               ]}
             >
@@ -212,11 +222,16 @@ export default function TransactionsScreen() {
                   setSelectedCategory(isSelected ? undefined : cat.id);
                 }}
                 activeOpacity={0.7}
+                accessibilityRole="button"
+                accessibilityLabel={`Filter by ${cat.name}`}
+                hitSlop={{ top: 8, bottom: 8, left: 6, right: 6 }}
                 style={[
                   styles.filterChip,
                   {
                     backgroundColor: isSelected ? colors.primary : colors.surfaceInset,
                     borderRadius: br.full,
+                    borderWidth: 0.5,
+                    borderColor: isSelected ? 'transparent' : colors.specularHairline,
                   },
                 ]}
               >
@@ -289,6 +304,8 @@ export default function TransactionsScreen() {
                   <TouchableOpacity
                     onPress={() => router.push(`/expense/${exp.id}`)}
                     activeOpacity={0.6}
+                    accessibilityRole="button"
+                    accessibilityLabel={`${exp.category.name}, ${formatINR(exp.amountPaise)}`}
                     style={[styles.expenseItem, { paddingHorizontal: spacing.md, paddingVertical: spacing.sm }]}
                   >
                     {/* Category Icon */}
@@ -298,6 +315,8 @@ export default function TransactionsScreen() {
                         {
                           backgroundColor: colors.surfaceInset,
                           borderRadius: br.sm,
+                          borderWidth: 0.5,
+                          borderColor: colors.specularHairline,
                         },
                       ]}
                     >
@@ -370,13 +389,20 @@ export default function TransactionsScreen() {
           </View>
         )}
       />
-    </SafeAreaView>
+      </View>
+    </AppSafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+  },
+  centerContainer: {
+    flex: 1,
+    width: '100%',
+    maxWidth: 680,
+    alignSelf: 'center',
   },
   header: {
     flexDirection: 'row',
@@ -388,7 +414,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    minHeight: 36,
+    minHeight: 44,
   },
   filterBar: {
     flexDirection: 'row',

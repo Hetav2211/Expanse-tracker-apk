@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import Svg, { Rect, Line, Text as SvgText, G } from 'react-native-svg';
 import { useTheme } from '../theme';
+import { SegmentedControl } from './SegmentedControl';
 import { MonthlyTrend } from '../types';
 import { formatRupeesCompact, formatRupees } from '../utils/currency';
 import { triggerSelection, triggerLightImpact } from '../utils/haptics';
@@ -56,56 +57,17 @@ export function BarChart({
           Spending Trend
         </Text>
 
-        <View
-          style={[
-            styles.segmentedControl,
-            {
-              backgroundColor: colors.surfaceInset,
-              borderRadius: br.sm,
-              padding: 2,
-            },
+        <SegmentedControl
+          options={[
+            { value: 3, label: '3M' },
+            { value: 6, label: '6M' },
+            { value: 12, label: '12M' },
           ]}
-        >
-          {([3, 6, 12] as const).map((r) => {
-            const isActive = selectedRange === r;
-            return (
-              <TouchableOpacity
-                key={r}
-                onPress={() => {
-                  triggerLightImpact();
-                  onChangeRange(r);
-                }}
-                activeOpacity={0.7}
-                style={[
-                  styles.segmentBtn,
-                  {
-                    backgroundColor: isActive ? colors.surface : 'transparent',
-                    borderRadius: br.xs,
-                    shadowColor: isDark ? 'transparent' : '#000000',
-                    shadowOffset: { width: 0, height: 1 },
-                    shadowOpacity: isActive && !isDark ? 0.08 : 0,
-                    shadowRadius: 2,
-                    elevation: isActive && !isDark ? 1 : 0,
-                  },
-                ]}
-              >
-                <Text
-                  style={[
-                    typography.caption2,
-                    {
-                      color: isActive ? colors.textPrimary : colors.textTertiary,
-                      fontWeight: isActive ? '600' : '400',
-                      paddingHorizontal: spacing.sm,
-                      paddingVertical: 3,
-                    },
-                  ]}
-                >
-                  {r}M
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
+          selectedValue={selectedRange}
+          onSelect={(r) => onChangeRange(r as 3 | 6 | 12)}
+          size="sm"
+          style={{ width: 144 }}
+        />
       </View>
 
       {/* Selected Month Callout */}
@@ -157,7 +119,12 @@ export function BarChart({
             const shortMonth = item.monthLabel.split(' ')[0].substring(0, 3);
 
             return (
-              <G key={item.yearMonth} onPress={() => handleBarTap(item)}>
+              <G
+                key={item.yearMonth}
+                onPress={() => handleBarTap(item)}
+                accessibilityRole="button"
+                accessibilityLabel={`${item.monthLabel}: ${formatRupees(item.totalPaise)}`}
+              >
                 {/* Touch surface */}
                 <Rect
                   x={x - 4}

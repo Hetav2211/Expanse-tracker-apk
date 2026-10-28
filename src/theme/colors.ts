@@ -1,19 +1,24 @@
 // ===== Apple Human Interface Guidelines (HIG) Color Palettes =====
+// Conforming to Apple First-Party UI/UX Architecture (Principal Level)
 
 export const lightColors = {
-  // Apple HIG Light Surfaces
-  // Level 0: Grouped Background
+  // Apple HIG Light Surfaces (Table 3.A)
+  // Level 0: Primary Canvas Background (Grouped)
   background: '#F2F2F7',
-  // Level 1: Elevated Card / Inset Grouped Cell
+  // Level 1: Secondary Container (Card / Grouped Cell)
   surface: '#FFFFFF',
   surfaceElevated: '#FFFFFF',
-  // Level 2: Secondary Fill
-  surfaceMuted: 'rgba(120, 120, 128, 0.08)',
-  // Level 3: Tertiary Fill / Inset input well
-  surfaceInset: 'rgba(118, 118, 128, 0.12)',
+  // Level 2: Tertiary Input Well / Nested Well
+  surfaceMuted: '#F2F2F7',
+  surfaceInset: '#F2F2F7',
   surfacePressed: 'rgba(0, 0, 0, 0.06)',
   card: '#FFFFFF',
-  inputBg: 'rgba(118, 118, 128, 0.12)',
+  inputBg: '#F2F2F7',
+  // Level 3: Floating / Popover / Pill
+  surfaceFloating: 'rgba(255, 255, 255, 0.82)',
+
+  // Specular Hairline (Chamfered edge rim light - Section 1.A)
+  specularHairline: 'rgba(0, 0, 0, 0.06)',
 
   // Legacy neumorphic stubs (transparent so no neumorphic shadows render)
   neuLight: 'transparent',
@@ -21,13 +26,15 @@ export const lightColors = {
   borderHighlight: 'transparent',
   borderShadow: 'transparent',
 
-  // Semantic Text Hierarchy (Alpha-channel dynamic blending)
-  textPrimary: 'rgba(0, 0, 0, 0.88)',
-  textSecondary: 'rgba(60, 60, 67, 0.60)',
-  textTertiary: 'rgba(60, 60, 67, 0.30)',
+  // Semantic Foreground Hierarchy (4-Tier Opacity System - Section 3.B)
+  textPrimary: '#000000',                     // 100% opacity
+  textSecondary: 'rgba(60, 60, 67, 0.60)',    // 60% opacity
+  textTertiary: 'rgba(60, 60, 67, 0.30)',     // 30% opacity
+  textQuaternary: 'rgba(60, 60, 67, 0.18)',   // 18% opacity
+  quaternaryFill: 'rgba(60, 60, 67, 0.18)',   // 18% opacity
   textInverse: '#FFFFFF',
 
-  // Primary System Tint (iOS System Blue)
+  // Primary System Tint (Apple iOS System Blue)
   primary: '#007AFF',
   primaryLight: 'rgba(0, 122, 255, 0.12)',
   primaryDark: '#0056B3',
@@ -55,8 +62,8 @@ export const lightColors = {
   divider: 'rgba(60, 60, 67, 0.20)',
   separator: 'rgba(60, 60, 67, 0.29)',
 
-  // Shadow (Subtle diffused light-mode shadow, zero blur in dark)
-  shadowColor: 'rgba(0, 0, 0, 0.05)',
+  // Shadow (Subtle diffused light-mode ambient elevation shadow, Section 5.A)
+  shadowColor: 'rgba(0, 0, 0, 0.06)',
 
   // Tab Bar (Frosted glass appearance)
   tabBarBackground: 'rgba(249, 249, 249, 0.88)',
@@ -75,20 +82,24 @@ export const lightColors = {
 };
 
 export const darkColors = {
-  // Apple HIG Dark Surfaces (Elevation = Luminance)
+  // Apple HIG Dark Surfaces (Elevation = Luminance - Table 3.A)
   // Level 0: Pure OLED Canvas
   background: '#000000',
   // Level 1: Elevated Card / Inset Grouped Cell
   surface: '#1C1C1E',
-  // Level 2: Popover / Modal Sheet
+  // Level 2: Popover / Modal Sheet / Tertiary Input Well
   surfaceElevated: '#2C2C2E',
-  // Level 3: Tertiary Surface
   surfaceMuted: '#2C2C2E',
-  // Level 3: Inset well / Input Pill
-  surfaceInset: '#3A3A3C',
+  // Level 2: Nested input well
+  surfaceInset: '#2C2C2E',
   surfacePressed: 'rgba(255, 255, 255, 0.08)',
   card: '#1C1C1E',
-  inputBg: '#3A3A3C',
+  inputBg: '#2C2C2E',
+  // Level 3: Floating / Popover / Pill (Blurred optical glass)
+  surfaceFloating: 'rgba(44, 44, 46, 0.78)',
+
+  // Specular Hairline (0.5px top rim light - Section 1.A & 5.A)
+  specularHairline: 'rgba(255, 255, 255, 0.12)',
 
   // Legacy neumorphic stubs (transparent)
   neuLight: 'transparent',
@@ -96,10 +107,12 @@ export const darkColors = {
   borderHighlight: 'transparent',
   borderShadow: 'transparent',
 
-  // Semantic Text Hierarchy (Alpha-channel dynamic blending)
-  textPrimary: 'rgba(255, 255, 255, 0.96)',
-  textSecondary: 'rgba(235, 235, 245, 0.60)',
-  textTertiary: 'rgba(235, 235, 245, 0.30)',
+  // Semantic Foreground Hierarchy (4-Tier Opacity System - Section 3.B)
+  textPrimary: '#FFFFFF',                     // 100% opacity
+  textSecondary: 'rgba(235, 235, 245, 0.60)', // 60% opacity
+  textTertiary: 'rgba(235, 235, 245, 0.30)',  // 30% opacity
+  textQuaternary: 'rgba(235, 235, 245, 0.18)',// 18% opacity
+  quaternaryFill: 'rgba(235, 235, 245, 0.18)',// 18% opacity
   textInverse: '#000000',
 
   // Primary System Tint (Apple Dark Mode System Blue)
@@ -130,7 +143,7 @@ export const darkColors = {
   divider: 'rgba(84, 84, 88, 0.55)',
   separator: 'rgba(84, 84, 88, 0.65)',
 
-  // Shadow (Apple Dark Mode uses NO drop shadows; elevation is luminance)
+  // Shadow (Apple Dark Mode uses NO drop shadows; elevation is luminance shift)
   shadowColor: 'transparent',
 
   // Tab Bar (Frosted glass appearance)
@@ -150,3 +163,4 @@ export const darkColors = {
 };
 
 export type ThemeColors = typeof lightColors;
+

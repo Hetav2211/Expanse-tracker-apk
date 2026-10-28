@@ -5,10 +5,10 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  SafeAreaView,
   RefreshControl,
 } from 'react-native';
-import { useTheme } from '../../src/theme';
+import { AppSafeAreaView } from '../../src/components/AppSafeAreaView';
+import { useTheme, concentricRadius } from '../../src/theme';
 import { useDashboard } from '../../src/hooks/useDashboard';
 import { formatINR } from '../../src/utils/currency';
 import { getCurrentYearMonth } from '../../src/utils/dates';
@@ -34,21 +34,22 @@ export default function InsightsScreen() {
   } = useDashboard(selectedMonth, chartRange);
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
-      {/* Apple Large Title Header */}
-      <View style={[styles.header, { paddingHorizontal: spacing.lg, paddingTop: spacing.md }]}>
-        <Text style={[typography.caption2, { color: colors.textSecondary, letterSpacing: 0.8, textTransform: 'uppercase' }]}>
-          Analytics
-        </Text>
-        <Text style={[typography.title1, { color: colors.textPrimary }]}>
-          Insights
-        </Text>
-      </View>
+    <AppSafeAreaView edges={['top', 'left', 'right']} style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <View style={styles.centerContainer}>
+        {/* Apple Large Title Header */}
+        <View style={[styles.header, { paddingHorizontal: spacing.lg, paddingTop: spacing.md }]}>
+          <Text style={[typography.caption2, { color: colors.textSecondary, letterSpacing: 0.8, textTransform: 'uppercase' }]}>
+            Analytics
+          </Text>
+          <Text style={[typography.title1, { color: colors.textPrimary }]}>
+            Insights
+          </Text>
+        </View>
 
-      {/* Month Switcher */}
-      <View style={{ paddingHorizontal: spacing.md }}>
-        <MonthSelector currentMonth={selectedMonth} onChangeMonth={setSelectedMonth} />
-      </View>
+        {/* Month Switcher */}
+        <View style={{ paddingHorizontal: spacing.md }}>
+          <MonthSelector currentMonth={selectedMonth} onChangeMonth={setSelectedMonth} />
+        </View>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -83,6 +84,8 @@ export default function InsightsScreen() {
                   {
                     backgroundColor: colors.primaryLight,
                     borderRadius: br.sm,
+                    borderWidth: 0.5,
+                    borderColor: colors.specularHairline,
                   },
                 ]}
               >
@@ -92,7 +95,7 @@ export default function InsightsScreen() {
                 Category Breakdown
               </Text>
             </View>
-            <Text style={[typography.footnote, { color: colors.textTertiary }]}>
+            <Text style={[typography.footnote, { color: colors.textTertiary, fontVariant: ['tabular-nums'] }]}>
               {categoryTotals.length} categories
             </Text>
           </View>
@@ -113,6 +116,8 @@ export default function InsightsScreen() {
                         {
                           backgroundColor: colors.surfaceInset,
                           borderRadius: br.sm,
+                          borderWidth: 0.5,
+                          borderColor: colors.specularHairline,
                         },
                       ]}
                     >
@@ -207,7 +212,9 @@ export default function InsightsScreen() {
                   styles.highlightWell,
                   {
                     backgroundColor: colors.surfaceInset,
-                    borderRadius: br.md,
+                    borderRadius: concentricRadius(br.lg, spacing.xs),
+                    borderWidth: 0.5,
+                    borderColor: colors.specularHairline,
                     padding: spacing.md,
                   },
                 ]}
@@ -226,7 +233,9 @@ export default function InsightsScreen() {
                     styles.highlightWell,
                     {
                       backgroundColor: colors.surfaceInset,
-                      borderRadius: br.md,
+                      borderRadius: concentricRadius(br.lg, spacing.xs),
+                      borderWidth: 0.5,
+                      borderColor: colors.specularHairline,
                       padding: spacing.md,
                     },
                   ]}
@@ -246,13 +255,20 @@ export default function InsightsScreen() {
           </Card>
         )}
       </ScrollView>
-    </SafeAreaView>
+      </View>
+    </AppSafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+  },
+  centerContainer: {
+    flex: 1,
+    width: '100%',
+    maxWidth: 680,
+    alignSelf: 'center',
   },
   header: {
     marginBottom: 4,

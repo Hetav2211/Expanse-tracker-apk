@@ -2,8 +2,9 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { useColorScheme as useSystemColorScheme } from 'react-native';
 import { lightColors, darkColors, ThemeColors } from './colors';
-import { spacing, borderRadius } from './spacing';
+import { spacing, borderRadius, concentricRadius, springCurves } from './spacing';
 import { typography } from './typography';
+import { ThemeTransitionOverlay } from './ThemeTransitionOverlay';
 
 export type ThemeMode = 'light' | 'dark' | 'system';
 
@@ -31,7 +32,26 @@ export function useTheme(): ThemeContextType {
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const systemScheme = useSystemColorScheme();
-  const [themeMode, setThemeMode] = useState<ThemeMode>('system');
+  const [themeMode, setThemeModeState] = useState<ThemeMode>(() => {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      try {
+        const saved = window.localStorage.getItem('expense_tracker_theme_mode');
+        if (saved === 'light' || saved === 'dark' || saved === 'system') {
+          return saved;
+        }
+      } catch {}
+    }
+    return 'system';
+  });
+
+  const setThemeMode = useCallback((mode: ThemeMode) => {
+    setThemeModeState(mode);
+    if (typeof window !== 'undefined' && window.localStorage) {
+      try {
+        window.localStorage.setItem('expense_tracker_theme_mode', mode);
+      } catch {}
+    }
+  }, []);
 
   const isDark = themeMode === 'system'
     ? systemScheme === 'dark'
@@ -49,14 +69,17 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     theme,
     themeMode,
     setThemeMode,
-  }), [theme, themeMode]);
+  }), [theme, themeMode, setThemeMode]);
 
   return (
     <ThemeContext.Provider value={value}>
       {children}
+      <ThemeTransitionOverlay />
     </ThemeContext.Provider>
   );
 }
 
-export { lightColors, darkColors, spacing, borderRadius, typography };
+export { lightColors, darkColors, spacing, borderRadius, concentricRadius, springCurves, typography, ThemeTransitionOverlay };
 export type { ThemeColors };
+
+

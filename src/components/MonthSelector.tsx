@@ -1,6 +1,6 @@
 // ===== Apple HIG Month Selector Component =====
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useRef } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Animated, Platform } from 'react-native';
 import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react-native';
 import { useTheme } from '../theme';
 import {
@@ -23,18 +23,44 @@ export function MonthSelector({ currentMonth, onChangeMonth }: MonthSelectorProp
   const currentActualMonth = getCurrentYearMonth();
   const isCurrentMonth = currentMonth === currentActualMonth;
 
+  const slideAnim = useRef(new Animated.Value(0)).current;
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+
+  const triggerSlide = (direction: 'left' | 'right') => {
+    const startX = direction === 'left' ? -14 : 14;
+    slideAnim.setValue(startX);
+    fadeAnim.setValue(0.2);
+    Animated.parallel([
+      Animated.spring(slideAnim, {
+        toValue: 0,
+        mass: 0.8,
+        stiffness: 400,
+        damping: 26,
+        useNativeDriver: Platform.OS !== 'web',
+      }),
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 160,
+        useNativeDriver: Platform.OS !== 'web',
+      }),
+    ]).start();
+  };
+
   const handlePrev = () => {
     triggerLightImpact();
+    triggerSlide('left');
     onChangeMonth(getPreviousMonth(currentMonth));
   };
 
   const handleNext = () => {
     triggerLightImpact();
+    triggerSlide('right');
     onChangeMonth(getNextMonth(currentMonth));
   };
 
   const handleResetToCurrent = () => {
     triggerMediumImpact();
+    triggerSlide(currentMonth > currentActualMonth ? 'left' : 'right');
     onChangeMonth(currentActualMonth);
   };
 
@@ -44,6 +70,8 @@ export function MonthSelector({ currentMonth, onChangeMonth }: MonthSelectorProp
       <TouchableOpacity
         onPress={handlePrev}
         activeOpacity={0.7}
+        accessibilityRole="button"
+        accessibilityLabel="Previous month"
         hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
         style={[
           styles.chevronButton,
@@ -51,17 +79,19 @@ export function MonthSelector({ currentMonth, onChangeMonth }: MonthSelectorProp
             backgroundColor: colors.surfaceInset,
             borderRadius: br.full,
             borderWidth: 0.5,
-            borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)',
+            borderColor: colors.specularHairline,
           },
         ]}
       >
         <ChevronLeft size={18} color={colors.textPrimary} />
       </TouchableOpacity>
 
-      {/* Current Month Capsule */}
+      {/* Current Month Capsule with Fluid Transition */}
       <TouchableOpacity
         onPress={handleResetToCurrent}
         activeOpacity={0.7}
+        accessibilityRole="button"
+        accessibilityLabel={`Month selector: ${formatMonthYear(currentMonth)}. Tap to reset to current month.`}
         style={[
           styles.monthCapsule,
           {
@@ -72,30 +102,41 @@ export function MonthSelector({ currentMonth, onChangeMonth }: MonthSelectorProp
             borderWidth: 0.5,
             borderColor: isCurrentMonth
               ? 'transparent'
-              : isDark
-              ? 'rgba(255, 255, 255, 0.08)'
-              : 'rgba(0, 0, 0, 0.04)',
+              : colors.specularHairline,
           },
         ]}
       >
-        <Calendar size={15} color={isCurrentMonth ? colors.primary : colors.textSecondary} />
-        <Text
+        <Animated.View
           style={[
-            typography.subhead,
+            styles.animatedContent,
             {
-              color: isCurrentMonth ? colors.primary : colors.textPrimary,
-              fontWeight: '600',
+              transform: [{ translateX: slideAnim }],
+              opacity: fadeAnim,
             },
           ]}
         >
-          {formatMonthYear(currentMonth)}
-        </Text>
+          <Calendar size={15} color={isCurrentMonth ? colors.primary : colors.textSecondary} />
+          <Text
+            style={[
+              typography.subhead,
+              {
+                color: isCurrentMonth ? colors.primary : colors.textPrimary,
+                fontWeight: '600',
+                fontVariant: ['tabular-nums'],
+              },
+            ]}
+          >
+            {formatMonthYear(currentMonth)}
+          </Text>
+        </Animated.View>
       </TouchableOpacity>
 
       {/* Next Month Chevron */}
       <TouchableOpacity
         onPress={handleNext}
         activeOpacity={0.7}
+        accessibilityRole="button"
+        accessibilityLabel="Next month"
         hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
         style={[
           styles.chevronButton,
@@ -103,7 +144,7 @@ export function MonthSelector({ currentMonth, onChangeMonth }: MonthSelectorProp
             backgroundColor: colors.surfaceInset,
             borderRadius: br.full,
             borderWidth: 0.5,
-            borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)',
+            borderColor: colors.specularHairline,
           },
         ]}
       >
@@ -121,15 +162,19 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   chevronButton: {
-    width: 40,
-    height: 40,
+    width: 44,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },
   monthCapsule: {
     flexDirection: 'row',
     alignItems: 'center',
+    minHeight: 44,
+  },
+  animatedContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 8,
-    minHeight: 40,
   },
 });

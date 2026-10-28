@@ -100,13 +100,18 @@ export function CategoryPicker({
                 setActiveGroup(group);
               }}
               activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel={`Category group ${group}`}
+              hitSlop={{ top: 8, bottom: 8, left: 6, right: 6 }}
               style={[
                 styles.groupChip,
                 {
                   backgroundColor: isActive ? colors.primary : colors.surfaceInset,
                   borderRadius: br.full,
                   paddingHorizontal: spacing.md,
-                  paddingVertical: 6,
+                  paddingVertical: 7,
+                  borderWidth: 0.5,
+                  borderColor: isActive ? 'transparent' : colors.specularHairline,
                 },
               ]}
             >
@@ -140,18 +145,18 @@ export function CategoryPicker({
                 key={cat.id}
                 onPress={() => handleSelect(cat)}
                 activeOpacity={0.7}
+                accessibilityRole="button"
+                accessibilityLabel={`${cat.name} category`}
                 style={[
                   styles.categoryCard,
                   {
                     backgroundColor: isSelected ? colors.primaryLight : colors.surfaceElevated,
                     borderRadius: br.md,
                     padding: spacing.sm,
-                    borderWidth: 1,
+                    borderWidth: isSelected ? 1.5 : 0.5,
                     borderColor: isSelected
                       ? colors.primary
-                      : isDark
-                      ? 'rgba(255, 255, 255, 0.06)'
-                      : 'rgba(0, 0, 0, 0.04)',
+                      : colors.specularHairline,
                   },
                 ]}
               >

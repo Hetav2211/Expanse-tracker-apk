@@ -1,12 +1,13 @@
-// ===== Apple HIG Amount Input Component =====
-import React from 'react';
+import React, { useRef } from 'react';
 import {
   View,
   Text,
   TextInput,
   StyleSheet,
   TouchableOpacity,
+  Pressable,
   ViewStyle,
+  Platform,
 } from 'react-native';
 import { useTheme } from '../theme';
 import { triggerLightImpact } from '../utils/haptics';
@@ -30,6 +31,7 @@ export function AmountInput({
 }: AmountInputProps) {
   const { theme } = useTheme();
   const { colors, spacing, borderRadius: br, typography, isDark } = theme;
+  const inputRef = useRef<any>(null);
 
   const handleQuickAdd = (addVal: number) => {
     triggerLightImpact();
@@ -58,22 +60,33 @@ export function AmountInput({
         Amount
       </Text>
 
-      {/* Apple HIG Clean Surface Well */}
-      <View
+      {/* Apple HIG Clean Surface Well with Precise Alignment */}
+      <Pressable
+        onPress={() => inputRef.current?.focus()}
+        accessibilityRole="none"
         style={[
           styles.inputBox,
           {
             backgroundColor: colors.inputBg,
             borderRadius: br.lg,
             paddingHorizontal: spacing.lg,
-            paddingVertical: spacing.md,
             borderWidth: error ? 1 : 0.5,
-            borderColor: error ? colors.danger : isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)',
+            borderColor: error ? colors.danger : colors.specularHairline,
           },
         ]}
       >
-        <Text style={[styles.currencySymbol, { color: colors.primary }]}>₹</Text>
+        <Text
+          style={[
+            typography.amountLarge,
+            styles.currencySymbol,
+            { color: colors.primary, lineHeight: undefined },
+          ]}
+        >
+          ₹
+        </Text>
+
         <TextInput
+          ref={inputRef}
           value={value}
           onChangeText={handleChangeText}
           placeholder="0"
@@ -81,12 +94,12 @@ export function AmountInput({
           keyboardType="decimal-pad"
           autoFocus={false}
           style={[
-            styles.textInput,
             typography.amountLarge,
-            { color: colors.textPrimary },
+            styles.textInput,
+            { color: colors.textPrimary, lineHeight: undefined },
           ]}
         />
-      </View>
+      </Pressable>
 
       {error ? (
         <Text
@@ -107,6 +120,9 @@ export function AmountInput({
               key={amt}
               onPress={() => handleQuickAdd(amt)}
               activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel={`Add ${amt} rupees`}
+              hitSlop={{ top: 8, bottom: 8, left: 6, right: 6 }}
               style={[
                 styles.quickPill,
                 {
@@ -115,7 +131,7 @@ export function AmountInput({
                   paddingHorizontal: spacing.md,
                   paddingVertical: spacing.xs,
                   borderWidth: 0.5,
-                  borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)',
+                  borderColor: colors.specularHairline,
                 },
               ]}
             >
@@ -148,12 +164,26 @@ const styles = StyleSheet.create({
     fontSize: 34,
     fontWeight: '700',
     marginRight: 8,
+    includeFontPadding: false,
+    textAlignVertical: 'center',
   },
   textInput: {
     flex: 1,
     fontSize: 34,
     fontWeight: '700',
     padding: 0,
+    paddingTop: 0,
+    paddingBottom: 0,
+    paddingVertical: 0,
+    margin: 0,
+    textAlignVertical: 'center',
+    includeFontPadding: false,
+    ...(Platform.OS === 'web'
+      ? ({
+          outlineStyle: 'none',
+          outlineWidth: 0,
+        } as any)
+      : {}),
   },
   quickPillsRow: {
     flexDirection: 'row',
@@ -165,3 +195,4 @@ const styles = StyleSheet.create({
     minHeight: 32,
   },
 });
+

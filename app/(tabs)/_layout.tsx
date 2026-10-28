@@ -36,6 +36,7 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Dashboard',
+          tabBarAccessibilityLabel: 'Dashboard Tab',
           tabBarIcon: ({ color }) => <LayoutDashboard size={22} color={color} strokeWidth={2} />,
         }}
       />
@@ -43,6 +44,7 @@ export default function TabLayout() {
         name="transactions"
         options={{
           title: 'Transactions',
+          tabBarAccessibilityLabel: 'Transactions History Tab',
           tabBarIcon: ({ color }) => <ReceiptText size={22} color={color} strokeWidth={2} />,
         }}
       />
@@ -50,6 +52,7 @@ export default function TabLayout() {
         name="insights"
         options={{
           title: 'Insights',
+          tabBarAccessibilityLabel: 'Analytics & Insights Tab',
           tabBarIcon: ({ color }) => <TrendingUp size={22} color={color} strokeWidth={2} />,
         }}
       />
@@ -57,6 +60,7 @@ export default function TabLayout() {
         name="settings"
         options={{
           title: 'Settings',
+          tabBarAccessibilityLabel: 'App Settings & Preferences Tab',
           tabBarIcon: ({ color }) => <Settings size={22} color={color} strokeWidth={2} />,
         }}
       />

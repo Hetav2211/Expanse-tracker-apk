@@ -69,8 +69,9 @@ export function Button({
           height: s.height,
           borderRadius: radius,
           paddingHorizontal: s.paddingH,
-          opacity: disabled ? 0.45 : pressed ? 0.88 : 1,
-          transform: [{ scale: pressed && !disabled && !loading ? 0.98 : 1 }],
+          // Touch Press: 6% dimming (opacity 0.94) and scale(0.97) (Section 6.B)
+          opacity: disabled ? 0.45 : pressed ? 0.94 : 1,
+          transform: [{ scale: pressed && !disabled && !loading ? 0.97 : 1 }],
         },
         // Variant styling
         variant === 'primary' && {
