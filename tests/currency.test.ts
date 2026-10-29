@@ -85,4 +85,29 @@ describe('Currency Logic & Boundary Value Analysis (Tier 1)', () => {
     assert.equal(paiseToInputString(0), '');
     assert.equal(paiseToInputString(NaN), '');
   });
+
+  test('cleanAmountInput sanitizes single-digit, decimal, and regional inputs safely without vanishing', () => {
+    const { cleanAmountInput } = require('../src/utils/currency');
+    // Single digit entry (User reported bug fix)
+    assert.equal(cleanAmountInput('1'), '1');
+    assert.equal(cleanAmountInput('5'), '5');
+    assert.equal(cleanAmountInput('0'), '0');
+
+    // Multi-digit & decimals
+    assert.equal(cleanAmountInput('50'), '50');
+    assert.equal(cleanAmountInput('500.50'), '500.50');
+    assert.equal(cleanAmountInput('12,50'), '12.50'); // Comma keypad
+    assert.equal(cleanAmountInput('1,250.50'), '1250.50'); // Thousands + decimal
+    assert.equal(cleanAmountInput('100.555'), '100.55'); // 2 decimal limit
+    assert.equal(cleanAmountInput('100..5'), '100.5'); // Multiple dots guard
+
+    // Regional numerals (Devanagari, Gujarati)
+    assert.equal(cleanAmountInput('५'), '5');
+    assert.equal(cleanAmountInput('૫૦૦'), '500');
+    assert.equal(cleanAmountInput('१२५.५०'), '125.50');
+
+    // Empty or non-numeric
+    assert.equal(cleanAmountInput(''), '');
+    assert.equal(cleanAmountInput('abc'), '');
+  });
 });

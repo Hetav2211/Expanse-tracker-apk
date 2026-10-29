@@ -12,12 +12,63 @@ export function rupeesToPaise(rupees: number): number {
 }
 
 /**
+ * Sanitize raw amount text entered by the user.
+ * Supports regional numerals (Devanagari, Gujarati, Eastern Arabic), converts commas to dots,
+ * strips invalid characters, guarantees at most one dot and max 2 decimal places.
+ */
+export function cleanAmountInput(text: string): string {
+  if (!text) return '';
+
+  // 1. Convert regional numerals (Devanagari, Gujarati, Eastern Arabic) to 0-9
+  let s = text
+    .replace(/[०-९]/g, (d) => (d.charCodeAt(0) - 0x0966).toString())
+    .replace(/[૦-૯]/g, (d) => (d.charCodeAt(0) - 0x0ae6).toString())
+    .replace(/[٠-٩]/g, (d) => (d.charCodeAt(0) - 0x0660).toString());
+
+  // 2. Handle commas (thousands separator vs decimal separator)
+  if (s.includes('.')) {
+    s = s.replace(/,/g, '');
+  } else {
+    const commaCount = (s.match(/,/g) || []).length;
+    if (commaCount === 1) {
+      const idx = s.indexOf(',');
+      const after = s.slice(idx + 1);
+      if (after.length <= 2) {
+        s = s.replace(',', '.');
+      } else {
+        s = s.replace(/,/g, '');
+      }
+    } else {
+      s = s.replace(/,/g, '');
+    }
+  }
+
+  // 3. Keep only digits and dots
+  s = s.replace(/[^0-9.]/g, '');
+
+  // 4. Guarantee at most one dot without discarding input
+  const parts = s.split('.');
+  if (parts.length > 2) {
+    s = parts[0] + '.' + parts.slice(1).join('');
+  }
+
+  // 5. Limit decimal places to 2 (paise precision)
+  const normalizedParts = s.split('.');
+  if (normalizedParts[1] && normalizedParts[1].length > 2) {
+    s = normalizedParts[0] + '.' + normalizedParts[1].slice(0, 2);
+  }
+
+  return s;
+}
+
+/**
  * Convert a user-entered string (e.g. "1250.50") to paise.
  * Returns null if the input is invalid or non-positive.
  */
 export function parseRupeesToPaise(input: string | null | undefined): number | null {
   if (!input || typeof input !== 'string') return null;
-  const cleaned = input.replace(/[₹,\s]/g, '');
+  if (input.includes('-')) return null; // Reject negative numbers
+  const cleaned = cleanAmountInput(input.replace(/[₹\s]/g, ''));
   if (cleaned === '' || cleaned === '.') return null;
   const num = parseFloat(cleaned);
   if (!Number.isFinite(num) || isNaN(num) || num <= 0) return null;

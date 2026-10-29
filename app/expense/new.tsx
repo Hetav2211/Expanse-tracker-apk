@@ -141,6 +141,7 @@ export default function NewExpenseScreen() {
           </View>
 
           <ScrollView
+            keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
             contentContainerStyle={[styles.content, { padding: spacing.lg, gap: spacing.lg }]}
           >

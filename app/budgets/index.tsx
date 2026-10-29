@@ -132,6 +132,7 @@ export default function BudgetsScreen() {
         </View>
 
         <ScrollView
+          keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
           contentContainerStyle={[styles.content, { padding: spacing.lg, gap: spacing.lg }]}
         >
@@ -445,7 +446,7 @@ export default function BudgetsScreen() {
               </TouchableOpacity>
             </View>
 
-            <ScrollView style={{ maxHeight: 380 }} showsVerticalScrollIndicator={false}>
+            <ScrollView style={{ maxHeight: 380 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
               <View style={{ gap: spacing.md, marginTop: spacing.md }}>
                 <Text style={[typography.subhead, { color: colors.textSecondary, fontWeight: '500' }]}>
                   Select Category

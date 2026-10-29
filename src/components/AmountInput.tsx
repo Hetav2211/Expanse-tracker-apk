@@ -5,12 +5,12 @@ import {
   TextInput,
   StyleSheet,
   TouchableOpacity,
-  Pressable,
   ViewStyle,
   Platform,
 } from 'react-native';
 import { useTheme } from '../theme';
 import { triggerLightImpact } from '../utils/haptics';
+import { cleanAmountInput } from '../utils/currency';
 
 export interface AmountInputProps {
   value: string; // Rupees string (e.g. "450" or "450.50")
@@ -31,7 +31,7 @@ export function AmountInput({
 }: AmountInputProps) {
   const { theme } = useTheme();
   const { colors, spacing, borderRadius: br, typography, isDark } = theme;
-  const inputRef = useRef<any>(null);
+  const inputRef = useRef<TextInput>(null);
 
   const handleQuickAdd = (addVal: number) => {
     triggerLightImpact();
@@ -41,12 +41,8 @@ export function AmountInput({
   };
 
   const handleChangeText = (text: string) => {
-    const cleaned = text.replace(/[^0-9.]/g, '');
-    const parts = cleaned.split('.');
-    if (parts.length > 2) return;
-    if (parts[1] && parts[1].length > 2) return;
-
-    onChangeValue(cleaned);
+    const sanitized = cleanAmountInput(text);
+    onChangeValue(sanitized);
   };
 
   return (
@@ -60,10 +56,8 @@ export function AmountInput({
         Amount
       </Text>
 
-      {/* Apple HIG Clean Surface Well with Precise Alignment */}
-      <Pressable
-        onPress={() => inputRef.current?.focus()}
-        accessibilityRole="none"
+      {/* Apple HIG Clean Surface Well with Precise Alignment and Direct Focus */}
+      <View
         style={[
           styles.inputBox,
           {
@@ -75,15 +69,25 @@ export function AmountInput({
           },
         ]}
       >
-        <Text
-          style={[
-            typography.amountLarge,
-            styles.currencySymbol,
-            { color: colors.primary, lineHeight: undefined },
-          ]}
+        <TouchableOpacity
+          onPress={() => inputRef.current?.focus()}
+          activeOpacity={0.7}
+          accessibilityRole="none"
+          hitSlop={{ top: 12, bottom: 12, left: 12, right: 8 }}
+          style={styles.currencyButton}
         >
-          ₹
-        </Text>
+          <Text
+            style={[
+              styles.currencySymbol,
+              {
+                fontFamily: typography.amountLarge.fontFamily,
+                color: colors.primary,
+              },
+            ]}
+          >
+            ₹
+          </Text>
+        </TouchableOpacity>
 
         <TextInput
           ref={inputRef}
@@ -92,14 +96,22 @@ export function AmountInput({
           placeholder="0"
           placeholderTextColor={colors.textTertiary}
           keyboardType="decimal-pad"
+          inputMode="decimal"
           autoFocus={false}
+          autoCorrect={false}
+          spellCheck={false}
+          autoCapitalize="none"
+          selectionColor={colors.primary}
           style={[
-            typography.amountLarge,
             styles.textInput,
-            { color: colors.textPrimary, lineHeight: undefined },
+            {
+              fontFamily: typography.amountLarge.fontFamily,
+              color: colors.textPrimary,
+              ...(Platform.OS === 'ios' ? { fontVariant: ['tabular-nums'] as any } : {}),
+            },
           ]}
         />
-      </Pressable>
+      </View>
 
       {error ? (
         <Text
@@ -160,8 +172,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: 64,
   },
+  currencyButton: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100%',
+  },
   currencySymbol: {
-    fontSize: 34,
+    fontSize: 32,
     fontWeight: '700',
     marginRight: 8,
     includeFontPadding: false,
@@ -169,12 +186,10 @@ const styles = StyleSheet.create({
   },
   textInput: {
     flex: 1,
-    fontSize: 34,
+    height: 54,
+    fontSize: 32,
     fontWeight: '700',
     padding: 0,
-    paddingTop: 0,
-    paddingBottom: 0,
-    paddingVertical: 0,
     margin: 0,
     textAlignVertical: 'center',
     includeFontPadding: false,
