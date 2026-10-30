@@ -1,5 +1,5 @@
 // ===== Apple HIG Edit / Delete Expense Screen =====
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
   Platform,
   Alert,
   ActivityIndicator,
+  Keyboard,
 } from 'react-native';
 import { AppSafeAreaView } from '../../src/components/AppSafeAreaView';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -44,6 +45,62 @@ export default function EditExpenseScreen() {
   const [amountError, setAmountError] = useState<string | undefined>();
   const [submitting, setSubmitting] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  const scrollViewRef = useRef<any>(null);
+  const dateY = useRef(0);
+  const merchantY = useRef(0);
+  const noteY = useRef(0);
+  const activeFieldRef = useRef<'amount' | 'date' | 'merchant' | 'note' | null>(null);
+
+  const scrollToActiveField = (field: 'amount' | 'date' | 'merchant' | 'note') => {
+    if (!scrollViewRef.current) return;
+    if (field === 'amount') {
+      scrollViewRef.current.scrollTo({ y: 0, animated: true });
+    } else if (field === 'date') {
+      const targetY = Math.max(0, dateY.current - 24);
+      scrollViewRef.current.scrollTo({ y: targetY, animated: true });
+    } else if (field === 'merchant') {
+      const targetY = Math.max(0, merchantY.current - 24);
+      scrollViewRef.current.scrollTo({ y: targetY, animated: true });
+    } else if (field === 'note') {
+      const targetY = Math.max(0, noteY.current - 24);
+      scrollViewRef.current.scrollTo({ y: targetY, animated: true });
+    }
+  };
+
+  const handleInputFocus = (field: 'amount' | 'date' | 'merchant' | 'note') => {
+    activeFieldRef.current = field;
+    if (keyboardHeight > 0) {
+      scrollToActiveField(field);
+    }
+  };
+
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+
+    const showSub = Keyboard.addListener(showEvent, (e) => {
+      const kh = e.endCoordinates.height;
+      setKeyboardHeight(kh);
+      if (activeFieldRef.current) {
+        const field = activeFieldRef.current;
+        setTimeout(() => {
+          scrollToActiveField(field);
+        }, 50);
+      }
+    });
+
+    const hideSub = Keyboard.addListener(hideEvent, () => {
+      activeFieldRef.current = null;
+      setKeyboardHeight(0);
+    });
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
 
   useEffect(() => {
     async function load() {
@@ -72,6 +129,7 @@ export default function EditExpenseScreen() {
   }, [id]);
 
   const handleUpdate = async () => {
+    Keyboard.dismiss();
     if (!id) return;
     const amountPaise = parseRupeesToPaise(amountRupees);
     if (!amountPaise || amountPaise <= 0) {
@@ -105,6 +163,7 @@ export default function EditExpenseScreen() {
   };
 
   const handleDelete = () => {
+    Keyboard.dismiss();
     triggerError();
     Alert.alert(
       'Delete Expense',
@@ -159,7 +218,10 @@ export default function EditExpenseScreen() {
             ]}
           >
             <TouchableOpacity
-              onPress={() => router.back()}
+              onPress={() => {
+                Keyboard.dismiss();
+                router.back();
+              }}
               activeOpacity={0.7}
               accessibilityRole="button"
               accessibilityLabel="Cancel edit"
@@ -186,9 +248,18 @@ export default function EditExpenseScreen() {
           </View>
 
         <ScrollView
+          ref={scrollViewRef}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={[styles.content, { padding: spacing.lg, gap: spacing.lg }]}
+          contentContainerStyle={[
+            styles.content,
+            {
+              padding: spacing.lg,
+              gap: spacing.lg,
+              paddingBottom: keyboardHeight > 0 ? keyboardHeight + spacing.xl : 40,
+            },
+          ]}
         >
           {/* Amount Input */}
           <AmountInput
@@ -197,6 +268,7 @@ export default function EditExpenseScreen() {
               setAmountRupees(val);
               if (amountError) setAmountError(undefined);
             }}
+            onFocus={() => handleInputFocus('amount')}
             error={amountError}
           />
 
@@ -222,12 +294,19 @@ export default function EditExpenseScreen() {
           </View>
 
           {/* Date */}
-          <Input
-            label="Date (YYYY-MM-DD)"
-            value={expenseDate}
-            onChangeText={setExpenseDate}
-            leftIcon={<Calendar size={16} color={colors.textTertiary} />}
-          />
+          <View
+            onLayout={(e) => {
+              dateY.current = e.nativeEvent.layout.y;
+            }}
+          >
+            <Input
+              label="Date (YYYY-MM-DD)"
+              value={expenseDate}
+              onChangeText={setExpenseDate}
+              onFocus={() => handleInputFocus('date')}
+              leftIcon={<Calendar size={16} color={colors.textTertiary} />}
+            />
+          </View>
 
           {/* Payment Method */}
           <View>
@@ -282,26 +361,40 @@ export default function EditExpenseScreen() {
           </View>
 
           {/* Merchant */}
-          <Input
-            label="Merchant / Place"
-            placeholder="e.g. Swiggy, DMart"
-            value={merchant}
-            onChangeText={setMerchant}
-            leftIcon={<Store size={16} color={colors.textTertiary} />}
-            showClear
-            onClear={() => setMerchant('')}
-          />
+          <View
+            onLayout={(e) => {
+              merchantY.current = e.nativeEvent.layout.y;
+            }}
+          >
+            <Input
+              label="Merchant / Place"
+              placeholder="e.g. Swiggy, DMart"
+              value={merchant}
+              onChangeText={setMerchant}
+              onFocus={() => handleInputFocus('merchant')}
+              leftIcon={<Store size={16} color={colors.textTertiary} />}
+              showClear
+              onClear={() => setMerchant('')}
+            />
+          </View>
 
           {/* Note */}
-          <Input
-            label="Note"
-            placeholder="e.g. Coffee with friends"
-            value={note}
-            onChangeText={setNote}
-            leftIcon={<FileText size={16} color={colors.textTertiary} />}
-            showClear
-            onClear={() => setNote('')}
-          />
+          <View
+            onLayout={(e) => {
+              noteY.current = e.nativeEvent.layout.y;
+            }}
+          >
+            <Input
+              label="Note"
+              placeholder="e.g. Coffee with friends"
+              value={note}
+              onChangeText={setNote}
+              onFocus={() => handleInputFocus('note')}
+              leftIcon={<FileText size={16} color={colors.textTertiary} />}
+              showClear
+              onClear={() => setNote('')}
+            />
+          </View>
 
           {/* Action Buttons */}
           <View style={{ gap: spacing.md, marginTop: spacing.sm }}>

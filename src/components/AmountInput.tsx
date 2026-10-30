@@ -18,6 +18,8 @@ export interface AmountInputProps {
   error?: string;
   containerStyle?: ViewStyle;
   showQuickPills?: boolean;
+  onFocus?: () => void;
+  onBlur?: () => void;
 }
 
 const QUICK_AMOUNTS = [100, 200, 500, 1000, 2000];
@@ -28,10 +30,12 @@ export function AmountInput({
   error,
   containerStyle,
   showQuickPills = true,
+  onFocus,
+  onBlur,
 }: AmountInputProps) {
   const { theme } = useTheme();
   const { colors, spacing, borderRadius: br, typography, isDark } = theme;
-  const inputRef = useRef<TextInput>(null);
+  const inputRef = useRef<any>(null);
 
   const handleQuickAdd = (addVal: number) => {
     triggerLightImpact();
@@ -102,6 +106,8 @@ export function AmountInput({
           spellCheck={false}
           autoCapitalize="none"
           selectionColor={colors.primary}
+          onFocus={onFocus}
+          onBlur={onBlur}
           style={[
             styles.textInput,
             {
